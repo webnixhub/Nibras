@@ -16,7 +16,7 @@ const expoConfig = {
     resizeMode: 'contain',
     backgroundColor: '#0B0F14',
   },
-  assetBundlePatterns: ['assets/**/*'],
+  assetBundlePatterns: ['**/*'],
   ios: {
     supportsTablet: true,
     bundleIdentifier: 'com.webnixhub.nibras',
@@ -37,7 +37,6 @@ const expoConfig = {
   },
   plugins: [
     'expo-document-picker',
-    '@react-native-vector-icons/ionicons', // SDK 56: @expo/vector-icons deprecated, static font requires this plugin
     [
       'expo-build-properties',
       {
@@ -55,6 +54,10 @@ const expoConfig = {
     // plugins array — it silently no-ops instead of erroring, which is why
     // the string-reference version built "successfully" but never actually
     // linked the native QVAC worker bundle.
+    //
+    // REMOVED: '@react-native-vector-icons/ionicons' — not in package.json.
+    // Re-add only after adding the matching dependency, or this throws
+    // the identical "Cannot find module" error you're already fighting.
   ],
   extra: {
     eas: {
