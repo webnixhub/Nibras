@@ -16,6 +16,12 @@ const SEVERITY_COLOR: Record<Severity, string> = {
 
 const DEEP_SCAN_SEVERITIES: Severity[] = ['CRITICAL', 'HIGH'];
 
+interface ReadFile {
+  name: string;
+  content: string;
+  readFailed: boolean;
+}
+
 export default function GuardModeScreen() {
   const [loading, setLoading] = useState(false);
   const [modelLoadPct, setModelLoadPct] = useState<number | null>(null);
@@ -59,17 +65,42 @@ export default function GuardModeScreen() {
     setLoading(true);
     setDeepScanNote(null);
     try {
-      const files = await Promise.all(
+      // Defensive per-file read — one bad URI/encoding must not silently
+      // kill the whole batch or leave the user with no scan, no error,
+      // and no history entry (the exact "picks but doesn't scan" bug).
+      const files: ReadFile[] = await Promise.all(
         result.assets.map(async (asset) => {
-          const content = await FileSystem.readAsStringAsync(asset.uri);
-          return { name: asset.name, content };
+          try {
+            const content = await FileSystem.readAsStringAsync(asset.uri, {
+              encoding: FileSystem.EncodingType.UTF8,
+            });
+            return { name: asset.name, content, readFailed: false };
+          } catch (readErr) {
+            console.error(`[GuardMode] Failed to read ${asset.name}:`, readErr);
+            return { name: asset.name, content: '', readFailed: true };
+          }
         })
       );
 
-      const results = scanProject(files);
+      const readFailures = files.filter((f) => f.readFailed);
+      const readableFiles = files.filter((f) => !f.readFailed);
+
+      if (readFailures.length > 0) {
+        Alert.alert(
+          'Some files skipped',
+          `Could not read: ${readFailures.map((f) => f.name).join(', ')}`
+        );
+      }
+
+      if (readableFiles.length === 0) {
+        setLoading(false);
+        return;
+      }
+
+      const results = scanProject(readableFiles);
       setFindings(results);
       incrementScanCount();
-      recordScan('guard', files.length, results);
+      recordScan('guard', readableFiles.length, results);
 
       const topFindings = results.filter((f) => DEEP_SCAN_SEVERITIES.includes(f.severity));
       if (topFindings.length > 0) {
