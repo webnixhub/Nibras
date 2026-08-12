@@ -12,6 +12,7 @@
   "dependencies": {
     "@qvac/sdk": "^0.16.0",
     "@qvac/rag": "^0.6.4",
+    "bare-rpc": "^1.0.0",
     "expo": "~56.0.12",
     "expo-build-properties": "^56.0.19",
     "expo-status-bar": "~56.0.4",
