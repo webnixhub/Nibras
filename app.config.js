@@ -1,32 +1,3 @@
-const createJiti = require('jiti');
-const jiti = createJiti(__filename);
-
-let withQvacSDK = null;
-try {
-  // Attempt to load the QVAC expo plugin programmatically (ESM-safe via jiti)
-  const qvacModule = jiti('@qvac/sdk/expo-plugin');
-  withQvacSDK = qvacModule.withQvacSDK || qvacModule.default || null;
-  if (typeof withQvacSDK !== 'function') {
-    console.warn(
-      '[app.config.js] @qvac/sdk/expo-plugin loaded but exported value is not a function.',
-      'Export keys:', Object.keys(qvacModule || {})
-    );
-    withQvacSDK = null;
-  }
-} catch (err) {
-  // Clear, actionable log — this is likely the "Cannot find module" you're seeing.
-  console.warn(
-    '[app.config.js] Could not load @qvac/sdk/expo-plugin via jiti. ' +
-      'This prevents QVAC from embedding the mobile worker bundle.\n' +
-      'Make sure @qvac/sdk is installed and that the package exports an expo-plugin at "@qvac/sdk/expo-plugin".\n' +
-      'Run: npm install @qvac/sdk --save\n' +
-      'Or check the installed package contents under node_modules/@qvac/sdk\n' +
-      'Original error:',
-    err && err.message ? err.message : err
-  );
-  // leave withQvacSDK null to allow graceful fallback below
-}
-
 /** @type {import('expo/config').ExpoConfig} */
 const expoConfig = {
   name: 'Nibras',
@@ -52,7 +23,7 @@ const expoConfig = {
   android: {
     package: 'com.webnixhub.nibras',
     minSdkVersion: 29,
-    allowBackup: false,
+    allowBackup: false, // prevents Android auto-restoring AsyncStorage/app data on reinstall
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#0B0F14',
@@ -71,7 +42,18 @@ const expoConfig = {
         },
       },
     ],
-    // '@qvac/sdk/expo-plugin' intentionally not listed as a string due to ESM plugin load issues.
+    // Reverted to the documented plain-string form. QVAC's current official
+    // Expo tutorial configures this exact way, no jiti/dynamic require needed:
+    // https://docs.qvac.tether.io/tutorials/expo/
+    // The previous jiti + withQvacSDK() workaround was undocumented and is
+    // the more likely source of "Cannot find module" during EAS prebuild --
+    // jiti's subpath resolution isn't guaranteed to match Node's native
+    // resolver, which is what Expo's own config-plugin loader uses.
+    '@qvac/sdk/expo-plugin',
+    //
+    // REMOVED: '@react-native-vector-icons/ionicons' -- not in package.json.
+    // Re-add only after adding the matching dependency, or this throws
+    // the identical "Cannot find module" error you're already fighting.
   ],
   extra: {
     eas: {
@@ -81,27 +63,13 @@ const expoConfig = {
 };
 
 module.exports = ({ config }) => {
-  const base = {
+  // Dynamic app.config.js must return the ExpoConfig object directly --
+  // NOT { ...config, expo: ... }. That malformed shape is what produced
+  // "Config `_internal.projectRoot` isn't defined by expo-cli" on EAS:
+  // the loader choked trying to read _internal off a top-level object
+  // that was never a valid ExpoConfig in the first place.
+  return {
     ...config,
     ...expoConfig,
   };
-
-  if (withQvacSDK) {
-    // withQvacSDK should be a function that accepts an ExpoConfig and returns a modified ExpoConfig
-    try {
-      return withQvacSDK(base);
-    } catch (err) {
-      console.warn('[app.config.js] withQvacSDK plugin threw an error:', err && err.message ? err.message : err);
-      // Fall back to returning unmodified config so the build can still run (but plugin missing)
-      return base;
-    }
-  }
-
-  // If plugin couldn't be loaded, return base config but warn the developer
-  console.warn(
-    '[app.config.js] QVAC expo plugin not applied. ' +
-      'Deep-scan worker bundle will not be embedded. ' +
-      'Install @qvac/sdk and ensure it exports the plugin at "@qvac/sdk/expo-plugin", then rebuild a custom dev client or full build.'
-  );
-  return base;
 };
