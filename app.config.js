@@ -23,7 +23,7 @@ const expoConfig = {
   android: {
     package: 'com.webnixhub.nibras',
     minSdkVersion: 29,
-    allowBackup: false, // prevents Android auto-restoring AsyncStorage/app data on reinstall
+    allowBackup: false,
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#0B0F14',
@@ -42,32 +42,22 @@ const expoConfig = {
         },
       },
     ],
-    // Reverted to the documented plain-string form. QVAC's current official
-    // Expo tutorial configures this exact way, no jiti/dynamic require needed:
-    // https://docs.qvac.tether.io/tutorials/expo/
-    // The previous jiti + withQvacSDK() workaround was undocumented and is
-    // the more likely source of "Cannot find module" during EAS prebuild --
-    // jiti's subpath resolution isn't guaranteed to match Node's native
-    // resolver, which is what Expo's own config-plugin loader uses.
     '@qvac/sdk/expo-plugin',
-    //
-    // REMOVED: '@react-native-vector-icons/ionicons' -- not in package.json.
-    // Re-add only after adding the matching dependency, or this throws
-    // the identical "Cannot find module" error you're already fighting.
   ],
   extra: {
     eas: {
       projectId: '1928534d-3f4f-4e72-b1a8-c10f2a6c5aac',
     },
   },
+  updates: {
+    url: 'https://u.expo.dev/1928534d-3f4f-4e72-b1a8-c10f2a6c5aac',
+  },
+  runtimeVersion: {
+    policy: 'appVersion',
+  },
 };
 
 module.exports = ({ config }) => {
-  // Dynamic app.config.js must return the ExpoConfig object directly --
-  // NOT { ...config, expo: ... }. That malformed shape is what produced
-  // "Config `_internal.projectRoot` isn't defined by expo-cli" on EAS:
-  // the loader choked trying to read _internal off a top-level object
-  // that was never a valid ExpoConfig in the first place.
   return {
     ...config,
     ...expoConfig,
