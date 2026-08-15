@@ -9,7 +9,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # WAS 60 — first real run hit this ceiling after making genuine
+    # progress (not stuck), per the annotation "exceeded 1h0m0s".
+    # 90 gives headroom for a from-scratch native build (QVAC llamacpp
+    # + Bare + RN, no Gradle cache yet). If a build legitimately needs
+    # more than this, that's a signal to look at what's slow, not just
+    # raise the number again.
+    timeout-minutes: 90
 
     steps:
       - name: Checkout repo
@@ -19,13 +25,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22.17.0'
-          cache: 'yarn'
 
       - name: Setup JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
+          # Caches ~/.gradle/caches and wrapper dists between runs.
+          # Won't help this run, but the *next* one skips re-downloading
+          # Gradle + dependencies from scratch — meaningful on a build
+          # this native-lib-heavy.
+          cache: 'gradle'
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
