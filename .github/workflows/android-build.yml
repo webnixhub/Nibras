@@ -57,6 +57,30 @@ jobs:
         run: eas build --profile preview --platform android --local --non-interactive --output ./build.apk
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          # Forces Gradle to print full stack traces inline instead of
+          # just "FAILED" — the last run showed three FAILED tasks
+          # (react-native-purchases:lintVitalAnalyzeRelease,
+          # app:mergeReleaseResources, expo-modules-core:lintVitalAnalyzeRelease)
+          # but never printed the actual error before hanging 48min and
+          # getting force-cancelled by the job timeout. This is the
+          # single-variable fix to see WHY before guessing at anything.
+          GRADLE_OPTS: '-Dorg.gradle.daemon=false'
+
+      - name: Upload Gradle reports on failure
+        # Runs even if the build step above failed — the previous run's
+        # actual error detail was lost because the job never reached
+        # this point (it hung 48min post-failure until the workflow
+        # timeout force-cancelled it). This grabs whatever Gradle wrote
+        # to disk regardless of how the build step ends.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-reports
+          path: |
+            android/app/build/reports/**
+            android/build/reports/**
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Report APK size
         run: |
