@@ -66,9 +66,25 @@ export default function DashboardScreen() {
   const history = useNibrasStore((s) => s.history);
   const scansToday = useNibrasStore((s) => s.scansToday);
   const isPro = useNibrasStore((s) => s.isPro);
+  const hasHydrated = useNibrasStore((s) => s.hasHydrated);
 
   const { totals, totalFindings, totalScans } = useMemo(() => getAggregateStats(history), [history]);
   const recentScans = useMemo(() => history.slice(0, 8), [history]);
+
+  // Persisted state (history, scansToday, isPro) loads from AsyncStorage
+  // asynchronously. Without this gate, Dashboard can mount and read
+  // history=[] before hydration resolves, then never re-render once it
+  // does — showing "no scans yet" permanently even though recordScan()
+  // fired and wrote to disk. hasHydrated flips true (success, failure, or
+  // 3s timeout — see useNibrasStore.ts) and this component re-renders
+  // because it's a selector subscription, same as every other field here.
+  if (!hasHydrated) {
+    return (
+      <View style={[styles.container, styles.loadingContainer]}>
+        <Text style={styles.subtitle}>Loading scan history…</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -146,6 +162,7 @@ export default function DashboardScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: color.bg },
+  loadingContainer: { alignItems: 'center', justifyContent: 'center' },
   content: { padding: spacing.xl, paddingBottom: 60 },
   title: { ...t.displayLarge, color: color.textPrimary },
   subtitle: { ...t.body, color: color.textSecondary, marginTop: spacing.xs, marginBottom: spacing.xl },
