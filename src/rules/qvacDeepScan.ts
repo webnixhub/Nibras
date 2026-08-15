@@ -53,13 +53,43 @@ export async function runSemanticScan(
   // Cap input size — this is a code-review pass, not a full-file dump.
   // Long pastes get truncated with a visible note rather than silently
   // failing or blowing the context window.
-  const MAX_CHARS = 6000;
+  //
+  // WAS 6000 — that number was sized against no particular ctx_size and
+  // routinely overflowed in practice (logged: 2109 prompt tokens against
+  // a 2048 ctx_size). Budget, working backward from qvacClient.ts's
+  // ctx_size: 2048:
+  //   2048 total
+  //   - 600  reserved for output (maxTokens below)
+  //   - ~150 system prompt (SYSTEM_PROMPT above, rough token count)
+  //   - ~30  wrapper text ("Analyze this code:" / truncation note)
+  //   = ~1268 tokens of real headroom for the code itself.
+  // Code runs ~3.2-3.5 chars/token (denser than prose — punctuation,
+  // short identifiers). 3500 chars ≈ 1000-1090 tokens, leaving margin
+  // instead of routinely hitting the ceiling like 6000 did.
+  //
+  // If you ever change maxTokens or ctx_size in qvacClient.ts, this
+  // number goes stale — recompute it, don't just leave it.
+  const MAX_CHARS = 3500;
   const truncated = code.length > MAX_CHARS;
   const codeForPrompt = truncated ? code.slice(0, MAX_CHARS) : code;
 
-  const userPrompt = `${truncated ? '[Note: code truncated to first 6000 characters]\n\n' : ''}Analyze this code:\n\n${codeForPrompt}`;
+  const userPrompt = `${truncated ? `[Note: code truncated to first ${MAX_CHARS} characters]\n\n` : ''}Analyze this code:\n\n${codeForPrompt}`;
 
-  const result = await generate(SYSTEM_PROMPT, userPrompt, { maxTokens: 600 });
+  let result;
+  try {
+    result = await generate(SYSTEM_PROMPT, userPrompt, { maxTokens: 600 });
+  } catch (e: any) {
+    // Context overflow throws at the SDK layer rather than returning
+    // malformed output — catch it here specifically so the UI can say
+    // "input too long" instead of the generic "AI analysis unavailable"
+    // that a truncation-math mistake and a real SDK error would otherwise
+    // both produce identically.
+    const msg = String(e?.message || e);
+    if (/context|ctx_size|overflow|prefill/i.test(msg)) {
+      throw new Error('Code too long for AI analysis even after truncation — try reviewing a smaller section.');
+    }
+    throw e;
+  }
 
   let findings: SemanticFinding[] = [];
   try {
