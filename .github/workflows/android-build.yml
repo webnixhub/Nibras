@@ -31,11 +31,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-          # Caches ~/.gradle/caches and wrapper dists between runs.
-          # Won't help this run, but the *next* one skips re-downloading
-          # Gradle + dependencies from scratch — meaningful on a build
-          # this native-lib-heavy.
-          cache: 'gradle'
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -44,11 +39,6 @@ jobs:
         run: npm install -g eas-cli
 
       - name: Log in to EAS (non-interactive)
-        # EXPO_TOKEN must be set as a GitHub Actions secret first —
-        # see the setup notes. This does NOT consume EAS cloud build
-        # quota — it only authenticates so eas can read your project
-        # config and credentials. The actual build runs locally on
-        # this runner via --local below.
         run: echo "EXPO_TOKEN is set via secrets, no interactive login needed"
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
@@ -58,7 +48,7 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           # Forces Gradle to print full stack traces inline instead of
-          # just "FAILED" — the last run showed three FAILED tasks
+          # just "FAILED" — a previous run showed three FAILED tasks
           # (react-native-purchases:lintVitalAnalyzeRelease,
           # app:mergeReleaseResources, expo-modules-core:lintVitalAnalyzeRelease)
           # but never printed the actual error before hanging 48min and
@@ -67,11 +57,6 @@ jobs:
           GRADLE_OPTS: '-Dorg.gradle.daemon=false'
 
       - name: Upload Gradle reports on failure
-        # Runs even if the build step above failed — the previous run's
-        # actual error detail was lost because the job never reached
-        # this point (it hung 48min post-failure until the workflow
-        # timeout force-cancelled it). This grabs whatever Gradle wrote
-        # to disk regardless of how the build step ends.
         if: always()
         uses: actions/upload-artifact@v4
         with:
