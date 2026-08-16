@@ -18,7 +18,7 @@
       "channel": "preview",
       "android": {
         "buildType": "apk",
-        "gradleCommand": ":app:assembleRelease -x lintVitalAnalyzeRelease -x lintVitalReportRelease --stacktrace --no-configuration-cache"
+        "gradleCommand": ":app:assembleRelease -x lintVitalRelease -x lintVitalAnalyzeRelease -x lintVitalReportRelease --stacktrace --no-configuration-cache"
       },
       "cache": {
         "disabled": true
