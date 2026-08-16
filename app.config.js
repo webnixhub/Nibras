@@ -39,6 +39,24 @@ const expoConfig = {
           kotlinVersion: '2.1.20',
           minSdkVersion: 29,
           compileSdkVersion: 36,
+          // FIX: previous EAS/Actions build failed with
+          // `java.lang.OutOfMemoryError: Metaspace` during
+          // mergeReleaseResources + parallel lintVitalAnalyzeRelease
+          // tasks (react-native-screens, expo-modules-core) on a
+          // constrained CI runner (GitHub Actions ubuntu-latest: 2
+          // vCPU / 7GB RAM). Default Gradle JVM args don't reserve
+          // enough Metaspace for a dependency graph this size.
+          // Raises heap + Metaspace ceiling and disables parallel
+          // task execution so lint/merge tasks don't compete for the
+          // same constrained memory pool simultaneously. Costs some
+          // build time, buys headroom. If this still OOMs, the next
+          // lever is lowering runner concurrency further or moving
+          // to a larger runner tier — not raising these numbers
+          // indefinitely.
+          gradleProperties: {
+            'org.gradle.jvmargs': '-Xmx4096m -XX:MaxMetaspaceSize=1024m',
+            'org.gradle.parallel': 'false',
+          },
         },
       },
     ],
