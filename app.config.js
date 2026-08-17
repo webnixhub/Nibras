@@ -61,6 +61,14 @@ const expoConfig = {
       },
     ],
     '@qvac/sdk/expo-plugin',
+    [
+      '@sentry/react-native/expo',
+      {
+        organization: 'webnixs-organization',
+        project: 'nibras',
+        url: 'https://sentry.io/',
+      },
+    ],
   ],
   extra: {
     eas: {
