@@ -45,7 +45,15 @@
  * doesn't transfer across an SDK version change. Re-benchmark with
  * benchmarkThroughput() the moment this runs on a real device — non-negotiable
  * before you trust any scan-speed claim in Guard Mode.
+ *
+ * SENTRY: breadcrumbs added at loadModel() and generate() entry points.
+ * loadModel() is the top suspect for the native crash-on-download bug —
+ * if the process dies inside the native .so, JS try/catch won't catch it,
+ * but the breadcrumb trail will show in Sentry as the last known state
+ * before the native crash report comes in.
  */
+
+import * as Sentry from '@sentry/react-native';
 
 let sdk: any = null;
 let SDK_OK = true;
@@ -106,6 +114,12 @@ export async function loadModel(onProgress?: (pct: number) => void): Promise<voi
   if (llmModelId || loading) return;
   loading = true;
 
+  Sentry.addBreadcrumb({
+    category: 'qvac',
+    message: `loadModel start: key=${ACTIVE_MODEL_KEY}, sdk=0.16.0`,
+    level: 'info',
+  });
+
   try {
     const model = MODELS.find((m) => m.key === ACTIVE_MODEL_KEY)!;
     const id = await sdk.loadModel({
@@ -115,6 +129,11 @@ export async function loadModel(onProgress?: (pct: number) => void): Promise<voi
       onProgress: (p: any) => onProgress?.(Math.round(p?.percentage ?? (p ?? 0) * 100)),
     });
     llmModelId = id;
+    Sentry.addBreadcrumb({
+      category: 'qvac',
+      message: `loadModel success: modelId=${id}`,
+      level: 'info',
+    });
   } finally {
     loading = false;
   }
@@ -161,6 +180,13 @@ export async function generate(
   if (!llmModelId) throw new Error('QVAC model not loaded — call loadModel() first');
 
   const t0 = Date.now();
+
+  Sentry.addBreadcrumb({
+    category: 'qvac',
+    message: `generate() start, modelId=${llmModelId}`,
+    level: 'info',
+  });
+
   const run = sdk.completion({
     modelId: llmModelId,
     history: [
