@@ -55,7 +55,7 @@ jobs:
           # getting force-cancelled by the job timeout. This is the
           # single-variable fix to see WHY before guessing at anything.
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-            GRADLE_OPTS: '-Dorg.gradle.daemon=false'
+          GRADLE_OPTS: '-Dorg.gradle.daemon=false'
 
       - name: Upload Gradle reports on failure
         if: always()
