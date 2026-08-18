@@ -125,7 +125,7 @@ export async function loadModel(onProgress?: (pct: number) => void): Promise<voi
     const id = await sdk.loadModel({
       modelSrc: model.src,
       modelType: 'llm', // 0.16.0: renamed from 'llamacpp-completion' — confirmed correct
-      modelConfig: { device: 'cpu', ctx_size: 2048 }, // confirmed shape via LlmLlamacpp config + Expo example
+      modelConfig: { device: 'gpu', ctx_size: 2048 }, // CHANGED cpu->gpu: 0.16.0 docs (Quickstart/Text-gen/Sharded/Video examples) show ONLY 'gpu' as a device value, never 'cpu' - testing as SIGABRT root cause
       onProgress: (p: any) => onProgress?.(Math.round(p?.percentage ?? (p ?? 0) * 100)),
     });
     llmModelId = id;
