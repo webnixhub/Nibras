@@ -65,7 +65,7 @@ const expoConfig = {
       '@sentry/react-native/expo',
       {
         organization: 'webnixs-organization',
-        project: 'nibras',
+        project: 'android',
         url: 'https://sentry.io/',
       },
     ],
