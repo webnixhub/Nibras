@@ -125,8 +125,12 @@ export async function loadModel(onProgress?: (pct: number) => void): Promise<voi
     const id = await sdk.loadModel({
       modelSrc: model.src,
       modelType: 'llm', // 0.16.0: renamed from 'llamacpp-completion' — confirmed correct
-      modelConfig: { device: 'gpu', ctx_size: 2048 }, // CHANGED cpu->gpu: 0.16.0 docs (Quickstart/Text-gen/Sharded/Video examples) show ONLY 'gpu' as a device value, never 'cpu' - testing as SIGABRT root cause
-      onProgress: (p: any) => onProgress?.(Math.round(p?.percentage ?? (p ?? 0) * 100)),
+      modelConfig: { device: 'gpu', ctx_size: 2048 },
+      // onProgress OMITTED — stack trace shows abort inside js_callback_s::on_call,
+      // the native->JS callback bridge itself, not model config. Testing whether
+      // removing the progress callback entirely eliminates the SIGABRT. If this
+      // fixes it: the callback signature/shape is the real bug, not device/config.
+      // If it still aborts: callback is not the cause, revert this and look elsewhere.
     });
     llmModelId = id;
     Sentry.addBreadcrumb({
