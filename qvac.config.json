@@ -1,7 +1,5 @@
 {
-  "plugins": [
-    "@qvac/sdk/llamacpp-completion/plugin"
-  ],
+  "plugins": [],
   "loggerConsoleOutput": false
 }
 
