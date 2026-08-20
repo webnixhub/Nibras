@@ -141,18 +141,16 @@ export async function loadModel(onProgress?: (pct: number) => void): Promise<voi
     }
 
     const model = MODELS.find((m) => m.key === ACTIVE_MODEL_KEY)!;
+    // onProgress REMOVED — this is the ACTUAL first test of this, despite a
+    // prior comment claiming it was already tried. That prior comment was
+    // never validated against a real build (confirmed via Sentry event
+    // ANDROID-2, Aug 20 2026: onProgress was present in the crashing build).
+    // Stack trace shows abort inside js_callback_s::on_call — native code
+    // calling INTO JS — and onProgress is the only JS callback passed here.
+    // This is the single variable this build cycle. Nothing else changes.
     const id = await sdk.loadModel({
       modelSrc: model.src,
-      modelType: 'llm', // 0.16.0: renamed from 'llamacpp-completion' — confirmed correct
-      // modelConfig REMOVED ENTIRELY — same SIGABRT with both device values and
-      // with/without onProgress means the abort happens before either is used,
-      // likely during argument marshaling. Current official 0.16.0 docs (Electron
-      // tutorial, npm README, Quickstart — all dated after the Webnix 0.13.3
-      // reference) show loadModel({ modelSrc, modelType, onProgress }) with NO
-      // modelConfig key for modelType:'llm'. Testing the theory that modelConfig
-      // is not a valid field for LLM loads on this SDK version and its presence
-      // is what aborts the native call.
-      onProgress: (p: any) => onProgress?.(Math.round(p?.percentage ?? (p ?? 0) * 100)),
+      modelType: 'llm',
     });
     llmModelId = id;
     Sentry.addBreadcrumb({
