@@ -124,7 +124,7 @@ export async function loadModel(onProgress?: (pct: number) => void): Promise<voi
     // Pre-flight: model is a confirmed 807,694,464 bytes (curl-verified,
     // Aug 20 2026). Native downloader aborts (SIGABRT) instead of throwing
     // a catchable JS error on disk-full mid-write. Fail loud here first.
-    const FileSystem = require('expo-file-system');
+    const FileSystem = require('expo-file-system/legacy');
     const freeSpace = await FileSystem.getFreeDiskStorageAsync();
     const MODEL_BYTES = 807694464;
     const MIN_REQUIRED_BYTES = MODEL_BYTES * 2; // headroom for temp/partial write during download
