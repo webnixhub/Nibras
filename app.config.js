@@ -61,14 +61,10 @@ const expoConfig = {
       },
     ],
     '@qvac/sdk/expo-plugin',
-    [
-      '@sentry/react-native/expo',
-      {
-        organization: 'webnixs-organization',
-        project: 'android',
-        url: 'https://sentry.io/',
-      },
-    ],
+    // Sentry plugin temporarily removed — testing whether Sentry's native
+    // NDK crash handler collides with QVAC's native signal handling.
+    // Both register signal handlers in the same process; SIGABRT is
+    // exactly the kind of signal both would want to intercept.
   ],
   extra: {
     eas: {
