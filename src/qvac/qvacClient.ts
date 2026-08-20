@@ -121,6 +121,25 @@ export async function loadModel(onProgress?: (pct: number) => void): Promise<voi
   });
 
   try {
+    // Pre-flight: model is a confirmed 807,694,464 bytes (curl-verified,
+    // Aug 20 2026). Native downloader aborts (SIGABRT) instead of throwing
+    // a catchable JS error on disk-full mid-write. Fail loud here first.
+    const FileSystem = require('expo-file-system');
+    const freeSpace = await FileSystem.getFreeDiskStorageAsync();
+    const MODEL_BYTES = 807694464;
+    const MIN_REQUIRED_BYTES = MODEL_BYTES * 2; // headroom for temp/partial write during download
+    if (freeSpace < MIN_REQUIRED_BYTES) {
+      const err = new Error(
+        `Insufficient storage: ${(freeSpace / 1e9).toFixed(2)}GB free, need ~${(MIN_REQUIRED_BYTES / 1e9).toFixed(2)}GB for model download.`
+      );
+      Sentry.addBreadcrumb({
+        category: 'qvac',
+        message: `loadModel abort: ${err.message}`,
+        level: 'error',
+      });
+      throw err;
+    }
+
     const model = MODELS.find((m) => m.key === ACTIVE_MODEL_KEY)!;
     const id = await sdk.loadModel({
       modelSrc: model.src,
