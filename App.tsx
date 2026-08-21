@@ -12,6 +12,11 @@ Sentry.init({
   tracesSampleRate: 1.0,
   enableNativeCrashHandling: true,
   enableAutoSessionTracking: true,
+  // Android 12+ only (API 30+) — device is exactly Android 12, should qualify.
+  // Native SIGABRT stack has been 4 blank frames every time; this is the
+  // only remaining lever to get real function names/addresses inside
+  // QVAC's .so instead of guessing further. One variable, diagnostic only.
+  enableTombstone: true,
 });
 
 function App() {
