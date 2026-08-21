@@ -2260,7 +2260,7 @@ bare-mime@^1.0.0:
   resolved "https://registry.yarnpkg.com/bare-mime/-/bare-mime-1.0.0.tgz#5e458e8d5afcf5bacadbe16f277fbefa35f30146"
   integrity sha512-lUOswzBkfqham4zjLDueKOd4Qj3gS56BiZ3q2f0g0adoFhF+HFNupvTUfZBWoicl7fWJ7Hp2RUZjmkY47dxxOQ==
 
-bare-module-lexer@^1.4.0, bare-module-lexer@^1.6.0:
+bare-module-lexer@^1.6.0:
   version "1.6.3"
   resolved "https://registry.yarnpkg.com/bare-module-lexer/-/bare-module-lexer-1.6.3.tgz#4d2f4eccf7cf7c85ee1130f0228cb32f97bd8982"
   integrity sha512-NQY7cnPV3GZlHJphX4nXmPdNPER/Tp17pVi9/he2ODw/GNZ7FXzrZlrS7WMF8zbtWigqW/NMc9aQc2BH8UJXqA==
@@ -2273,15 +2273,6 @@ bare-module-resolve@^1.10.0, bare-module-resolve@^1.12.0, bare-module-resolve@^1
   integrity sha512-xcfgg2u7HqgJiBmah71O9vvdFAgHCvkqC/WSC2O7Bbgosoc1eC/BWe/6IDJ4OsfKlkxuvC/TDWXC+oH5yeW8mA==
   dependencies:
     bare-semver "^1.0.0"
-
-bare-module-traverse@~1.8.0:
-  version "1.8.3"
-  resolved "https://registry.yarnpkg.com/bare-module-traverse/-/bare-module-traverse-1.8.3.tgz#cb30955471adca58f9542251621dfa220cc53ec9"
-  integrity sha512-Iykt1899FOo0lpejEwAUK50fYIzQ18uiJFqybgZvIIqnZSV0/0GhJp+3w3Vx5hTVeTIROF8UmTUB5jHNs65PAg==
-  dependencies:
-    bare-addon-resolve "^1.5.0"
-    bare-module-lexer "^1.4.0"
-    bare-module-resolve "^1.7.0"
 
 bare-module-traverse@~2.4.0:
   version "2.4.4"
@@ -2307,20 +2298,6 @@ bare-os@^3.0.1, bare-os@^3.2.0, bare-os@^3.3.1, bare-os@^3.4.0, bare-os@^3.6.2, 
   version "3.9.3"
   resolved "https://registry.yarnpkg.com/bare-os/-/bare-os-3.9.3.tgz#eaf8a978a5fdda3dafc702b0f001449249eabe49"
   integrity sha512-fF4Q7QsyKVF5Rj0qvI8BgUNjqzC2JvQlpTaPLjVJVxYVUX5Zr9un+y3w1HmA4nNKdFmRBT8z/WmrjvXzXVerKQ==
-
-bare-pack@^1.5.1:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/bare-pack/-/bare-pack-1.5.1.tgz#1af1da392aec24b7211281e72e99258a0dae7179"
-  integrity sha512-ACc5Tx3p3LMD4ov2GYQSe1kKTyvNqzXTjdO+USL/5kD9r77VBTn0y+W7Cl5j3xp8u/REs5NoOCHyK+ykaMpwGA==
-  dependencies:
-    bare-bundle "^1.8.3"
-    bare-bundle-id "^1.0.0"
-    bare-fs "^4.2.1"
-    bare-module-traverse "~1.8.0"
-    bare-path "^3.0.0"
-    bare-url "*"
-    paparam "^1.5.0"
-    promaphore "^1.0.0"
 
 bare-pack@^2.0.1:
   version "2.2.1"
@@ -2592,7 +2569,7 @@ bare-type@^1.0.0, bare-type@^1.1.0:
   resolved "https://registry.yarnpkg.com/bare-type/-/bare-type-1.1.0.tgz#f5e2d7e120a2115205a7eb4436e21f7be5f4ff01"
   integrity sha512-LdtnnEEYldOc87Dr4GpsKnStStZk3zfgoEMXy8yvEZkXrcCv9RtYDrUYWFsBQHtaB0s1EUWmcvS6XmEZYIj3Bw==
 
-bare-url@*, bare-url@^2.0.9, bare-url@^2.2.2, bare-url@^2.4.0:
+bare-url@^2.0.9, bare-url@^2.2.2, bare-url@^2.4.0:
   version "2.5.2"
   resolved "https://registry.yarnpkg.com/bare-url/-/bare-url-2.5.2.tgz#e8dafaefbdb56891a0fbc2b0e1c051296d241cd6"
   integrity sha512-L13PCJzKG8RGvx8V1/DdMi12ERhC3tprr7/8a94BxpmnRsFqxh5XZNdhtMxu5HPkRshYOOWRGY8lDP7ZhpG9Cg==
