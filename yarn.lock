@@ -2232,26 +2232,24 @@ bare-inspect@^3.1.2:
     bare-ansi-escapes "^2.1.0"
     bare-type "^1.0.0"
 
-bare-lief@^0.2.0:
-  version "0.2.6"
-  resolved "https://registry.yarnpkg.com/bare-lief/-/bare-lief-0.2.6.tgz#54f4b22949b8879635b9fbd831e986253647a2c9"
-  integrity sha512-sq1DmnANQ/EYR0gFnt6UnrWGc+QCz1fVXfiqp+Of8WYptoxMXnvUyKw7hIBXxcsrLzhbzQuO8gESlIvPcRZQRA==
+bare-lief@^0.1.0:
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/bare-lief/-/bare-lief-0.1.6.tgz#4ee988380a0fd5a850b412ef8ca27e4c2ab7e1c4"
+  integrity sha512-eNqgZGoHVPGtbkLoDPVyKKEe9uTkXFqOvTevb1iDv3SXv/eU7kMgJoAukSdvFUg7QWNiqd2o/pZwaMy5n3cjNw==
   dependencies:
-    bare-assert "^1.2.0"
     require-addon "^1.2.0"
 
-bare-link@^3.0.1:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/bare-link/-/bare-link-3.3.0.tgz#65f2d8d89a46271f6bf36c7be75f286d9663163d"
-  integrity sha512-gAa3PJ+kZnL7vT5MGCgqXDfBKDu62turjBaZBRp0ZqnGT3BFeox9jWYrW1zo/8sQqmSpMEcWGWCyJpPt8huYRA==
+bare-link@^2.1.8:
+  version "2.1.10"
+  resolved "https://registry.yarnpkg.com/bare-link/-/bare-link-2.1.10.tgz#154aeb5c105c58b5c26d9ce72c98c1dbf2bce466"
+  integrity sha512-oqoh5RJ6kuPRozDfOvVFpdcbRRFmUoxz4LU/bjMbBGWvAwO3f2v1i38GScyMUAs5MMtiyoSmIzZqw0QbLM5Erg==
   dependencies:
     bare-fs "^4.0.0"
-    bare-lief "^0.2.0"
+    bare-lief "^0.1.0"
     bare-module-resolve "^1.12.0"
     bare-os "^3.2.0"
     bare-path "^3.0.0"
-    bare-semver "^1.0.3"
-    bare-subprocess "^6.0.0"
+    bare-subprocess "^5.0.2"
     bare-url "^2.0.9"
     paparam "^1.5.0"
 
@@ -2477,7 +2475,7 @@ bare-runtime@^1.24.2:
     bare-runtime-win32-arm64 "1.31.0"
     bare-runtime-win32-x64 "1.31.0"
 
-bare-semver@^1.0.0, bare-semver@^1.0.3:
+bare-semver@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/bare-semver/-/bare-semver-1.1.0.tgz#8c12d350673ee1413969039f05546aa2023ec210"
   integrity sha512-1Hw5qJ7hXdVt3uPUqjeFTuxyvBUJauvz5A1I2jk8gzjZMHp04n//6nV9MDbG9CMw78JHY2lGV0w6s//LrASm2w==
@@ -2525,7 +2523,18 @@ bare-structured-clone@^1.5.2:
     bare-url "^2.4.0"
     compact-encoding "^3.0.1"
 
-bare-subprocess@^6.0.0, bare-subprocess@^6.1.0:
+bare-subprocess@^5.0.2:
+  version "5.2.3"
+  resolved "https://registry.yarnpkg.com/bare-subprocess/-/bare-subprocess-5.2.3.tgz#2d57974bebb2dab1c1a0beaba67ef01138a048ce"
+  integrity sha512-07wwswlV7M3sC9IykbZRZ/jHAkrXFWVLqdBWGv1y0ojCimtRD9hGwxdHmR5FUFmDUZLNsBmTYJNQqgio5+A85Q==
+  dependencies:
+    bare-env "^3.0.0"
+    bare-events "^2.5.4"
+    bare-os "^3.0.1"
+    bare-pipe "^4.0.0"
+    bare-url "^2.2.2"
+
+bare-subprocess@^6.1.0:
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/bare-subprocess/-/bare-subprocess-6.1.0.tgz#1002579a768c81c632616c0a5dfcd5e7ed120f4a"
   integrity sha512-8L6KtbmreDy4Fc1BdDqaDo9fg0nbedUmTSFQxYPV0uHIM2BBAX8+E0LyMDKgkk0I+mlKto80WYzOnIhT8VDdOg==
@@ -4859,13 +4868,13 @@ react-is@^19.1.0:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-19.2.8.tgz#09826f9fbc187bc668e3e5c62edc001f804d5018"
   integrity sha512-s5un28nYxKJw5gvUHyW5PCC28CvBqLu9r3cWgzHT4Vo/5fqqkFcdRYsGcKf50WMPpjjFZS5d76fn3YCo2njKwQ==
 
-react-native-bare-kit@^0.14.3:
-  version "0.14.5"
-  resolved "https://registry.yarnpkg.com/react-native-bare-kit/-/react-native-bare-kit-0.14.5.tgz#75844f2305db89ebadc9aa6d4f3070352557df63"
-  integrity sha512-AEHi23oGYiSGBnDu2XepLEPy4BquW1fJmtPDhkzo0GtkpNsfzsU60d8xPm30HCXBLdXVZfPzvOBbroHGOf7N1w==
+react-native-bare-kit@0.11.5:
+  version "0.11.5"
+  resolved "https://registry.yarnpkg.com/react-native-bare-kit/-/react-native-bare-kit-0.11.5.tgz#e7aee99084ef5036391adf1bf616f5270547f2ae"
+  integrity sha512-VTM1mRip9g3NqUUG2MsRg1HWFAXjVotq4ZlzHnzAHrHwEnlrnDa5Ex5Yqsq3HYh78Q3rvdFbNcxpKVv+CuLW1Q==
   dependencies:
     bare-events "^2.6.1"
-    bare-link "^3.0.1"
+    bare-link "^2.1.8"
     streamx "^2.21.0"
 
 react-native-drawer-layout@^4.2.10:
