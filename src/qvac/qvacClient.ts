@@ -112,7 +112,7 @@ export async function loadModel(onProgress?: (pct: number) => void): Promise<voi
       modelSrc: model.src,
       modelType: 'llm', // 0.16.0: renamed from 'llamacpp-completion' — confirmed correct
       modelConfig: { device: 'cpu', ctx_size: 2048 }, // confirmed shape via LlmLlamacpp config + Expo example
-      onProgress: (p: any) => onProgress?.(Math.round(p?.percentage ?? (p ?? 0) * 100)),
+      // TEMP: onProgress removed to isolate SIGABRT hypothesis (see original above commented)
     });
     llmModelId = id;
   } finally {
