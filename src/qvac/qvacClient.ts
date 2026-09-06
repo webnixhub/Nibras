@@ -110,9 +110,11 @@ export async function loadModel(onProgress?: (pct: number) => void): Promise<voi
     const model = MODELS.find((m) => m.key === ACTIVE_MODEL_KEY)!;
     const id = await sdk.loadModel({
       modelSrc: model.src,
-      modelType: 'llm', // 0.16.0: renamed from 'llamacpp-completion' — confirmed correct
-      modelConfig: { device: 'cpu', ctx_size: 2048 }, // confirmed shape via LlmLlamacpp config + Expo example
-      // TEMP: onProgress removed to isolate SIGABRT hypothesis (see original above commented)
+      modelType: 'llm',
+      modelConfig: { device: 'cpu', ctx_size: 2048 },
+      onProgress: (progress: { percentage: number }) => {
+        onProgress?.(Math.round(progress.percentage));
+      },
     });
     llmModelId = id;
   } finally {
