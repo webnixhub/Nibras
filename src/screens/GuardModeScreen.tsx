@@ -41,6 +41,7 @@ export default function GuardModeScreen() {
   const incrementScanCount = useNibrasStore((s) => s.incrementScanCount);
   const resetDailyIfNeeded = useNibrasStore((s) => s.resetDailyIfNeeded);
   const recordScan = useNibrasStore((s) => s.recordScan);
+  const lastScanAt = useNibrasStore((s) => s.lastScanAt);
 
   useEffect(() => {
     resetDailyIfNeeded();
@@ -105,6 +106,8 @@ export default function GuardModeScreen() {
       const topFindings = results.filter((f) => DEEP_SCAN_SEVERITIES.includes(f.severity));
       if (topFindings.length > 0) {
         await runDeepScan(topFindings);
+      } else if (results.length > 0) {
+        setDeepScanNote('No CRITICAL or HIGH findings — deep scan skipped (only runs on top-severity issues).');
       }
     } catch (err) {
       Alert.alert('Scan failed', String(err));
@@ -193,8 +196,12 @@ export default function GuardModeScreen() {
         <FindingCard key={`${f.ruleId}-${i}`} finding={f} />
       ))}
 
-      {findings.length === 0 && !loading && (
+      {findings.length === 0 && !loading && !lastScanAt && (
         <Text style={styles.empty}>No scan results yet. Select files to begin.</Text>
+      )}
+
+      {findings.length === 0 && !loading && lastScanAt && (
+        <Text style={styles.clean}>✓ Scan complete — no issues found.</Text>
       )}
     </ScrollView>
   );
@@ -260,4 +267,5 @@ const styles = StyleSheet.create({
   cardMeta: { color: color.textTertiary, fontSize: 12, marginBottom: spacing.xs },
   cardSnippet: { color: color.textSecondary, fontSize: 12, fontFamily: 'monospace' },
   empty: { color: color.textTertiary, textAlign: 'center', marginTop: 40 },
+  clean: { color: color.aiAccent, textAlign: 'center', marginTop: 40, fontWeight: '600' },
 });
