@@ -25,7 +25,7 @@ const SYSTEM_PROMPT = `You are a code review assistant analyzing a code snippet 
 3. performance: obvious bottlenecks — O(n^2)+ where better exists, unnecessary re-renders, blocking calls in hot paths
 
 Respond ONLY with a JSON array, no markdown fences, no preamble. Each element:
-{"category": "null-pointer"|"race-condition"|"performance", "confidence": "high"|"medium"|"low", "explanation": "one sentence", "suggestedFix": "one sentence", "lineHint": "approximate location or code fragment"}
+{"category": "null-pointer"|"race-condition"|"performance", "confidence": "high"|"medium"|"low", "explanation": "one sentence", "suggestedFix": "one sentence", "lineHint": "the exact, verbatim offending line or code fragment copied character-for-character from the input — never a paraphrased description of the location"}
 
 If you find nothing in a category, omit it. If you find nothing at all, respond with an empty array: []
 Do not invent issues that aren't present. Only report what you can actually see in the code.`;
@@ -53,7 +53,11 @@ export async function runSemanticScan(
   // Cap input size — this is a code-review pass, not a full-file dump.
   // Long pastes get truncated with a visible note rather than silently
   // failing or blowing the context window.
-  const MAX_CHARS = 6000;
+  // Budget: ctx_size 3072 - maxTokens 600 (output) - ~240 (system prompt)
+  // ≈ 2200 tokens left for code, at ~3.2 chars/token for source (safe-side
+  // estimate) = ~7000 chars. Recalculate this if ctx_size, maxTokens, or
+  // SYSTEM_PROMPT length change — this number is derived, not arbitrary.
+  const MAX_CHARS = 7000;
   const truncated = code.length > MAX_CHARS;
   const codeForPrompt = truncated ? code.slice(0, MAX_CHARS) : code;
 

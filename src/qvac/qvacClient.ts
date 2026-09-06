@@ -111,7 +111,7 @@ export async function loadModel(onProgress?: (pct: number) => void): Promise<voi
     const id = await sdk.loadModel({
       modelSrc: model.src,
       modelType: 'llm',
-      modelConfig: { device: 'cpu', ctx_size: 2048 },
+      modelConfig: { device: 'cpu', ctx_size: 3072 }, // bumped 2048->3072: fixes MAX_CHARS truncation in qvacDeepScan.ts, kept below 4096 to limit KV-cache RAM risk on LM-G850
       onProgress: (progress: { percentage: number }) => {
         onProgress?.(Math.round(progress.percentage));
       },
