@@ -39,6 +39,21 @@ const expoConfig = {
           kotlinVersion: '2.1.20',
           minSdkVersion: 29,
           compileSdkVersion: 36,
+          // Excludes GPU compute backends this app can never use: device is
+          // hardcoded to 'cpu' in qvacClient.ts (LM-G850's Adreno 640 is
+          // below QVAC's stated GPU minimum). Confirmed via `du` on a real
+          // built APK: libqvac-ggml-vulkan.so (85MB) + libqvac-ggml-opencl.so
+          // (2.6MB) = ~87.6MB dead weight, the single largest chunk of the
+          // 231MB->150MB overage. Real filenames confirmed on-device, NOT
+          // the stock template's existing (and ineffective) libOpenCL.so
+          // exclude, which is a different, unrelated file. Uses the native
+          // packagingOptions.exclude field (verified via expo-build-properties
+          // pluginConfig.d.ts), not a hand-built gradleProperties string
+          // (that first attempt didn't write anything - confirmed empty
+          // grep against generated android/gradle.properties).
+          packagingOptions: {
+            exclude: ['**/libqvac-ggml-vulkan.so', '**/libqvac-ggml-opencl.so'],
+          },
         },
       },
     ],
