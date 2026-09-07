@@ -95,6 +95,9 @@ export default function GuardModeScreen() {
 
       if (readableFiles.length === 0) {
         setLoading(false);
+        if (readFailures.length === 0) {
+          Alert.alert('No files selected', 'Pick at least one file to scan.');
+        }
         return;
       }
 
