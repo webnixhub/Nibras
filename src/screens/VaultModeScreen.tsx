@@ -40,6 +40,7 @@ export default function VaultModeScreen() {
   const [semanticFindings, setSemanticFindings] = useState<SemanticFinding[]>([]);
   const [tps, setTps] = useState<number | null>(null);
   const [semanticError, setSemanticError] = useState<string | null>(null);
+  const [aiStatus, setAiStatus] = useState<'idle' | 'running' | 'done' | 'error'>('idle');
 
   // SELECTOR SUBSCRIPTIONS ONLY — see DashboardScreen.tsx for why. An
   // unselected useNibrasStore() here plus an unwrapped resetDailyIfNeeded()
@@ -84,6 +85,7 @@ export default function VaultModeScreen() {
     setLoading(true);
     setSemanticError(null);
     setSemanticFindings([]);
+    setAiStatus('running');
 
     try {
       const secretsAndInjection = scanFileContent('pasted-code', code);
@@ -98,8 +100,10 @@ export default function VaultModeScreen() {
         setModelLoadPct(null);
         setSemanticFindings(result.findings);
         setTps(Number(result.tokensPerSecond.toFixed(1)));
+        setAiStatus('done');
       } catch (e: any) {
         setModelLoadPct(null);
+        setAiStatus('error');
         setSemanticError(e.message || 'AI analysis unavailable — pattern-match results still shown above.');
       }
     } catch (err) {
@@ -170,7 +174,12 @@ export default function VaultModeScreen() {
         </View>
       )}
 
-      {semanticFindings.length > 0 && (
+      {aiStatus === 'done' && (
+  <>
+    {semanticFindings.length === 0 && (
+      <Text style={styles.empty}>No issues found by AI analysis</Text>
+    )}
+    {semanticFindings.length > 0 && (
         <>
           <Text style={styles.tierLabel}>AI ANALYSIS — probabilistic, on-device model</Text>
           {semanticFindings.map((f, i) => (
@@ -189,6 +198,8 @@ export default function VaultModeScreen() {
           ))}
         </>
       )}
+  </>
+)}
 
       {patternFindings.length === 0 && semanticFindings.length === 0 && !loading && (
         <Text style={styles.empty}>No review yet. Paste code and tap Review Code.</Text>
