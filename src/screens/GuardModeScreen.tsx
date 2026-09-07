@@ -108,6 +108,8 @@ export default function GuardModeScreen() {
         await runDeepScan(topFindings);
       } else if (results.length > 0) {
         setDeepScanNote('No CRITICAL or HIGH findings — deep scan skipped (only runs on top-severity issues).');
+      } else {
+        setDeepScanNote('No issues found. Scan complete.');
       }
     } catch (err) {
       Alert.alert('Scan failed', String(err));
