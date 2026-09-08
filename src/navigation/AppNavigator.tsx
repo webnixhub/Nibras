@@ -10,6 +10,7 @@ import { Ionicons } from '@react-native-vector-icons/ionicons/static';
 import DashboardScreen from '../screens/DashboardScreen';
 import GuardModeScreen from '../screens/GuardModeScreen';
 import VaultModeScreen from '../screens/VaultModeScreen';
+import ScanDetailScreen from '../screens/ScanDetailScreen';
 import { color, spacing, type as t, radius } from '../theme/tokens';
 
 const Drawer = createDrawerNavigator();
@@ -71,6 +72,11 @@ export default function AppNavigator() {
       <Drawer.Screen name="Dashboard" component={DashboardScreen} />
       <Drawer.Screen name="Guard Mode" component={GuardModeScreen} />
       <Drawer.Screen name="Vault Mode" component={VaultModeScreen} />
+      <Drawer.Screen
+        name="Scan Detail"
+        component={ScanDetailScreen}
+        options={{ drawerItemStyle: { height: 0 } }}
+      />
     </Drawer.Navigator>
   );
 }

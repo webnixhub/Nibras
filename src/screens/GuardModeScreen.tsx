@@ -3,6 +3,7 @@ import { View, Text, Pressable, ScrollView, StyleSheet, ActivityIndicator, Alert
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import { scanProject, severityCounts, Finding, Severity } from '../rules/patternRules';
+import FindingCard from '../components/FindingCard';
 import { useNibrasStore, canScan, FREE_DAILY_LIMIT } from '../store/useNibrasStore';
 import { loadModel, generate, isModelLoaded, isQvacAvailable } from '../qvac/qvacClient';
 import { color, spacing, radius, type as t } from '../theme/tokens';
@@ -212,20 +213,6 @@ export default function GuardModeScreen() {
   );
 }
 
-function FindingCard({ finding }: { finding: Finding }) {
-  return (
-    <View style={[styles.card, { borderLeftColor: SEVERITY_COLOR[finding.severity] }]}>
-      <Text style={[styles.cardSeverity, { color: SEVERITY_COLOR[finding.severity] }]}>
-        {finding.severity}
-      </Text>
-      <Text style={styles.cardMessage}>{finding.message}</Text>
-      <Text style={styles.cardMeta}>
-        {finding.file}:{finding.line}
-      </Text>
-      <Text style={styles.cardSnippet}>{finding.snippet}</Text>
-    </View>
-  );
-}
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: color.bg },

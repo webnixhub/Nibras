@@ -8,6 +8,7 @@
  */
 
 import { generate, isModelLoaded, loadModel, isQvacAvailable } from '../qvac/qvacClient';
+import { Finding } from './patternRules';
 
 export type SemanticCategory = 'null-pointer' | 'race-condition' | 'performance';
 
@@ -38,7 +39,8 @@ export interface DeepScanResult {
 
 export async function runSemanticScan(
   code: string,
-  onModelLoadProgress?: (pct: number) => void
+  onModelLoadProgress?: (pct: number) => void,
+  patternFindings: Finding[] = []
 ): Promise<DeepScanResult> {
   if (!isQvacAvailable()) {
     throw new Error('QVAC unavailable on this build.');
@@ -53,15 +55,64 @@ export async function runSemanticScan(
   // Cap input size — this is a code-review pass, not a full-file dump.
   // Long pastes get truncated with a visible note rather than silently
   // failing or blowing the context window.
-  // Budget: ctx_size 3072 - maxTokens 600 (output) - ~240 (system prompt)
-  // ≈ 2200 tokens left for code, at ~3.2 chars/token for source (safe-side
-  // estimate) = ~7000 chars. Recalculate this if ctx_size, maxTokens, or
-  // SYSTEM_PROMPT length change — this number is derived, not arbitrary.
-  const MAX_CHARS = 7000;
+  // Budget: ctx_size 3072 - maxTokens 600 (output) - ~260 (system prompt,
+  // measured 1053 chars / ~4 chars-per-token for prose) ≈ 2100 tokens left
+  // for the userPrompt wrapper + code. CONFIRMED FAILURE (Sep 6): 7000 chars
+  // at an assumed 3.2 chars/token estimate overflowed on a real dense
+  // HTML/CSS/JS file (62818 chars raw) — minified/template-literal-heavy
+  // code tokenizes denser than that estimate assumed. Recalculated at a
+  // safer 2.5 chars/token for dense code: 2100 tokens * 2.5 = 5250,
+  // rounded down to 5000 for real margin. Recalculate this if ctx_size,
+  // maxTokens, or SYSTEM_PROMPT length change — this number is derived,
+  // not arbitrary, and has already been wrong once.
+  const MAX_CHARS = 5000;
   const truncated = code.length > MAX_CHARS;
-  const codeForPrompt = truncated ? code.slice(0, MAX_CHARS) : code;
 
-  const userPrompt = `${truncated ? '[Note: code truncated to first 6000 characters]\n\n' : ''}Analyze this code:\n\n${codeForPrompt}`;
+  // Build codeForPrompt from windows around known pattern-match hits when
+  // the file is too big to send whole. Blind head-truncation (the old
+  // behavior) always fed the model the file's first page, so on any file
+  // where the real issues live past byte 5000 — like a 62KB dense file
+  // with critical findings at line 900+ — the AI tier silently never saw
+  // them and reported a false-clean result. Windowing around pattern-match
+  // line numbers biases the AI's limited view toward the code most likely
+  // to have additional issues, instead of always the same unlucky prefix.
+  let codeForPrompt = code;
+  let windowNote = '';
+
+  if (truncated) {
+    if (patternFindings.length > 0) {
+      const lines = code.split('\n');
+      const WINDOW = 20;
+      const ranges: [number, number][] = patternFindings
+        .map((f) => [Math.max(0, f.line - 1 - WINDOW), Math.min(lines.length, f.line - 1 + WINDOW)] as [number, number])
+        .sort((a, b) => a[0] - b[0]);
+
+      const merged: [number, number][] = [];
+      for (const [start, end] of ranges) {
+        const last = merged[merged.length - 1];
+        if (last && start <= last[1]) {
+          last[1] = Math.max(last[1], end);
+        } else {
+          merged.push([start, end]);
+        }
+      }
+
+      let assembled = '';
+      for (const [start, end] of merged) {
+        const chunk = `// ...lines ${start + 1}-${end}...\n` + lines.slice(start, end).join('\n') + '\n';
+        if (assembled.length + chunk.length > MAX_CHARS) break;
+        assembled += chunk;
+      }
+
+      codeForPrompt = assembled || code.slice(0, MAX_CHARS);
+      windowNote = `[Note: file too large for full analysis — showing ${merged.length} region(s) around ${patternFindings.length} pattern-match finding(s), not the full file]\n\n`;
+    } else {
+      codeForPrompt = code.slice(0, MAX_CHARS);
+      windowNote = `[Note: code truncated to first ${MAX_CHARS} characters]\n\n`;
+    }
+  }
+
+  const userPrompt = `${windowNote}Analyze this code:\n\n${codeForPrompt}`;
 
   const result = await generate(SYSTEM_PROMPT, userPrompt, { maxTokens: 600 });
 

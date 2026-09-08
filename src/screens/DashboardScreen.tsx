@@ -125,7 +125,11 @@ export default function DashboardScreen() {
           record.severityCounts.MEDIUM +
           record.severityCounts.LOW;
         return (
-          <View key={record.id} style={[styles.historyCard, { borderLeftColor: SEVERITY_COLOR[worst] }]}>
+          <Pressable
+            key={record.id}
+            onPress={() => navigation.navigate('Scan Detail', { record })}
+            style={[styles.historyCard, { borderLeftColor: SEVERITY_COLOR[worst] }]}
+          >
             <View style={styles.historyRow}>
               <Text style={styles.historyMode}>{record.mode === 'guard' ? 'Guard Mode' : 'Vault Mode'}</Text>
               <Text style={styles.historyTime}>
@@ -137,7 +141,7 @@ export default function DashboardScreen() {
               {record.fileCount} file{record.fileCount !== 1 ? 's' : ''} · {total} finding
               {total !== 1 ? 's' : ''}
             </Text>
-          </View>
+          </Pressable>
         );
       })}
     </ScrollView>

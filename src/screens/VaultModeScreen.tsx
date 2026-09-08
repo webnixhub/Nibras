@@ -96,7 +96,7 @@ export default function VaultModeScreen() {
       recordScan('vault', 1, allPatternFindings);
 
       try {
-        const result = await runSemanticScan(code, setModelLoadPct);
+        const result = await runSemanticScan(code, setModelLoadPct, allPatternFindings);
         setModelLoadPct(null);
         setSemanticFindings(result.findings);
         setTps(Number(result.tokensPerSecond.toFixed(1)));
