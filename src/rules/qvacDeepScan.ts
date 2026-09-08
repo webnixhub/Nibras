@@ -66,6 +66,16 @@ export async function runSemanticScan(
   // maxTokens, or SYSTEM_PROMPT length change — this number is derived,
   // not arbitrary, and has already been wrong once.
   const MAX_CHARS = 5000;
+  // Windowed assembly (below) deliberately selects code AROUND
+  // pattern-match hits — SQL concatenation, promise chains, template
+  // literals — which is denser and tokenizes worse than the 2.5
+  // chars/token estimate MAX_CHARS is based on (that estimate already
+  // came from a dense-code failure once, see comment above). A random
+  // file-head slice sometimes lands on sparse boilerplate; windowed
+  // selection never does. Confirmed overflow (Sep 8) on a 62KB file at
+  // the full 5000-char windowed budget. Cutting to 3200 gives real
+  // margin for the worst-case density windowing guarantees encountering.
+  const WINDOWED_MAX_CHARS = 3200;
   const truncated = code.length > MAX_CHARS;
 
   // Build codeForPrompt from windows around known pattern-match hits when
@@ -100,11 +110,11 @@ export async function runSemanticScan(
       let assembled = '';
       for (const [start, end] of merged) {
         const chunk = `// ...lines ${start + 1}-${end}...\n` + lines.slice(start, end).join('\n') + '\n';
-        if (assembled.length + chunk.length > MAX_CHARS) break;
+        if (assembled.length + chunk.length > WINDOWED_MAX_CHARS) break;
         assembled += chunk;
       }
 
-      codeForPrompt = assembled || code.slice(0, MAX_CHARS);
+      codeForPrompt = assembled || code.slice(0, WINDOWED_MAX_CHARS);
       windowNote = `[Note: file too large for full analysis — showing ${merged.length} region(s) around ${patternFindings.length} pattern-match finding(s), not the full file]\n\n`;
     } else {
       codeForPrompt = code.slice(0, MAX_CHARS);
