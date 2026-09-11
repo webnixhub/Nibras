@@ -15,7 +15,7 @@ import { scanFileContent, Finding, Severity } from '../rules/patternRules';
 import { scanAntipatterns } from '../rules/antipatternRules';
 import { runSemanticScan, SemanticFinding, SemanticCategory } from '../rules/qvacDeepScan';
 import { useNibrasStore, canScan, FREE_DAILY_LIMIT } from '../store/useNibrasStore';
-import { color, spacing, radius, type as t } from '../theme/tokens';
+import { color, spacing, radius, type as t, font } from '../theme/tokens';
 
 const SEVERITY_COLOR: Record<Severity, string> = {
   CRITICAL: color.critical,
@@ -115,7 +115,7 @@ export default function VaultModeScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Vault Mode</Text>
+      <Text style={styles.title}>[VAULT MODE]</Text>
       <Text style={styles.subtitle}>
         Paste code for review — nothing is saved to disk.{' '}
         {isPro ? 'Unlimited scans' : `${scansToday}/${FREE_DAILY_LIMIT} scans today`}
@@ -159,7 +159,7 @@ export default function VaultModeScreen() {
           <Text style={styles.tierLabel}>PATTERN MATCH — deterministic, fast</Text>
           {patternFindings.map((f, i) => (
             <View key={`p-${i}`} style={[styles.card, { borderLeftColor: SEVERITY_COLOR[f.severity] }]}>
-              <Text style={[styles.cardTag, { color: SEVERITY_COLOR[f.severity] }]}>{f.severity}</Text>
+              <Text style={[styles.cardTag, { color: SEVERITY_COLOR[f.severity] }]}>[{f.severity}]</Text>
               <Text style={styles.cardMessage}>{f.message}</Text>
               <Text style={styles.cardMeta}>line {f.line}</Text>
               <Text style={styles.cardSnippet}>{f.snippet}</Text>
@@ -186,9 +186,9 @@ export default function VaultModeScreen() {
             <View key={`s-${i}`} style={[styles.card, { borderLeftColor: CONFIDENCE_COLOR[f.confidence] }]}>
               <View style={styles.semanticHeader}>
                 <Text style={[styles.cardTag, { color: CONFIDENCE_COLOR[f.confidence] }]}>
-                  {CATEGORY_LABEL[f.category]}
+                  [{CATEGORY_LABEL[f.category]}]
                 </Text>
-                <Text style={styles.confidenceTag}>{f.confidence} confidence</Text>
+                <Text style={styles.confidenceTag}>[{f.confidence.toUpperCase()} CONFIDENCE]</Text>
               </View>
               <Text style={styles.cardMessage}>{f.explanation}</Text>
               <Text style={styles.fixLabel}>Suggested fix</Text>
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
   title: { ...t.displayLarge, color: color.textPrimary },
   subtitle: { ...t.body, color: color.textSecondary, marginTop: spacing.xs, marginBottom: spacing.lg, lineHeight: 18 },
   pickButton: { alignSelf: 'flex-start', marginBottom: spacing.sm },
-  pickButtonText: { color: color.aiAccent, fontSize: 13, fontWeight: '600' },
+  pickButtonText: { color: color.aiAccent, fontSize: 13, fontFamily: font.mono, letterSpacing: 0.5 },
   codeInput: {
     backgroundColor: color.surface,
     borderWidth: 1,
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     color: color.textPrimary,
     padding: spacing.md,
     fontSize: 13,
-    fontFamily: 'monospace',
+    fontFamily: font.mono,
     minHeight: 160,
     marginBottom: spacing.md,
   },
@@ -234,9 +234,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.lg,
   },
-  reviewButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  reviewButtonText: { color: color.bg, fontSize: 16, fontFamily: font.mono, letterSpacing: 0.5, fontWeight: '600' },
   modelLoadBox: { backgroundColor: color.surface, borderRadius: radius.sm, padding: spacing.md, marginBottom: spacing.lg },
-  modelLoadText: { color: color.textSecondary, fontSize: 13, textAlign: 'center' },
+  modelLoadText: { color: color.textSecondary, fontSize: 13, fontFamily: font.mono, textAlign: 'center' },
   tpsBox: {
     alignSelf: 'center',
     backgroundColor: color.pulseAccentBg,
@@ -247,23 +247,23 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
     marginBottom: spacing.lg,
   },
-  tpsText: { color: color.pulseAccent, fontSize: 12, fontWeight: '700' },
+  tpsText: { color: color.pulseAccent, fontSize: 12, fontFamily: font.mono, letterSpacing: 0.5 },
   tierLabel: {
     color: color.textTertiary,
     fontSize: 11,
-    fontWeight: '800',
+    fontFamily: font.mono,
     letterSpacing: 1,
     marginTop: spacing.sm,
     marginBottom: spacing.sm,
   },
-  card: { backgroundColor: color.surface, borderLeftWidth: 4, borderRadius: radius.sm, padding: spacing.md, marginBottom: spacing.sm },
-  cardTag: { fontSize: 11, fontWeight: '800' },
+  card: { backgroundColor: color.surface, borderLeftWidth: 3, borderWidth: 1, borderColor: color.border, borderRadius: radius.sm, padding: spacing.md, marginBottom: spacing.sm },
+  cardTag: { fontSize: 11, fontFamily: font.mono, letterSpacing: 1 },
   semanticHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xs },
-  confidenceTag: { color: color.textTertiary, fontSize: 11, fontWeight: '600' },
-  cardMessage: { color: color.textPrimary, fontSize: 14, marginTop: spacing.xs, marginBottom: spacing.xs },
-  cardMeta: { color: color.textTertiary, fontSize: 12, marginBottom: spacing.xs },
-  cardSnippet: { color: color.textSecondary, fontSize: 12, fontFamily: 'monospace' },
-  fixLabel: { color: color.aiAccent, fontSize: 10, fontWeight: '700', marginTop: spacing.xs, marginBottom: spacing.xs },
+  confidenceTag: { color: color.textTertiary, fontSize: 11, fontFamily: font.mono },
+  cardMessage: { color: color.textPrimary, fontSize: 14, fontFamily: font.mono, marginTop: spacing.xs, marginBottom: spacing.xs },
+  cardMeta: { color: color.textTertiary, fontSize: 12, fontFamily: font.mono, marginBottom: spacing.xs },
+  cardSnippet: { color: color.textSecondary, fontSize: 12, fontFamily: font.mono },
+  fixLabel: { color: color.aiAccent, fontSize: 10, fontFamily: font.mono, letterSpacing: 0.5, marginTop: spacing.xs, marginBottom: spacing.xs },
   errorBox: {
     backgroundColor: '#1A0F0F',
     borderWidth: 1,
@@ -272,6 +272,6 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     marginBottom: spacing.lg,
   },
-  errorText: { color: '#F3A5A5', fontSize: 13 },
-  empty: { color: color.textTertiary, textAlign: 'center', marginTop: 40 },
+  errorText: { color: '#F3A5A5', fontSize: 13, fontFamily: font.mono },
+  empty: { color: color.textTertiary, fontFamily: font.mono, textAlign: 'center', marginTop: 40 },
 });
