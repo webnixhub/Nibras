@@ -26,7 +26,7 @@ const SYSTEM_PROMPT = `You are a code review assistant analyzing a code snippet 
 3. performance: obvious bottlenecks — O(n^2)+ where better exists, unnecessary re-renders, blocking calls in hot paths
 
 Respond ONLY with a JSON array, no markdown fences, no preamble. Each element:
-{"category": "null-pointer"|"race-condition"|"performance", "confidence": "high"|"medium"|"low", "explanation": "one sentence", "suggestedFix": "one sentence", "lineHint": "the exact, verbatim offending line or code fragment copied character-for-character from the input — never a paraphrased description of the location"}
+{"category": "null-pointer"|"race-condition"|"performance", "confidence": "high"|"medium"|"low", "explanation": "one sentence", "suggestedFix": "one sentence", "lineHint": "the approximate location or a short code fragment near the issue — best effort, does not need to be an exact character-for-character quote"}
 
 If you find nothing in a category, omit it. If you find nothing at all, respond with an empty array: []
 Do not invent issues that aren't present. Only report what you can actually see in the code.`;
@@ -142,6 +142,11 @@ export async function runSemanticScan(
   } catch {
     // Model didn't return valid JSON — fail to empty rather than crash
     // the scan. The pattern-match findings still stand on their own.
+    // LOGGED, NOT SILENT: a parse failure here is indistinguishable from
+    // a genuine "no issues found" empty array in the UI otherwise — see
+    // Sep 2026 regression where a stricter verbatim-lineHint prompt caused
+    // exactly this failure mode and went undetected until manual retest.
+    console.warn('[qvacDeepScan] Model output failed JSON parse, raw text:', result.text);
     findings = [];
   }
 
