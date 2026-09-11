@@ -70,7 +70,7 @@ export default function AppNavigator() {
         // Per-screen titles removed — every drawer screen now shows the
         // same persistent brand header instead of "Dashboard" / "Guard
         // Mode" / etc. Screen identity now lives only in the drawer itself.
-        headerTitle: 'NIBRAS // ON-DEVICE SCANNER',
+        headerTitle: 'NIBRAS',
         drawerStyle: { backgroundColor: color.surface, width: 260 },
       }}
     >

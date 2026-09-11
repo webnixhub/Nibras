@@ -1,19 +1,12 @@
 /**
  * Nibras design tokens — TERMINAL REDESIGN (Sep 2026).
  *
- * SUPERSEDED GUARDRAIL, LOGGED FOR THE RECORD: this file previously stated
- * "severity color is a trust signal and must never be reused for
- * decoration." That rule is deliberately overridden by explicit product
- * decision (Sep 2026) in favor of a monochrome green/amber terminal
- * aesthetic. Severity is now communicated by TEXT LABEL ONLY
- * (CRITICAL/HIGH/MEDIUM/LOW strings), not color.
- *
- * REAL UX COST, ACCEPTED KNOWINGLY: the Dashboard risk-distribution bar and
- * history-card left-borders lose at-a-glance color triage. A user must read
- * the label on each segment/card instead of pattern-matching color in
- * peripheral vision. This was flagged and the terminal aesthetic was chosen
- * anyway — do not "fix" this back to red/orange without re-confirming the
- * tradeoff is still wanted.
+ * SEVERITY COLOR-CODING RESTORED (Sep 11 2026): the monochrome-green
+ * severity decision below was explicitly reversed by product decision.
+ * Severity is once again color-coded — red/orange/yellow/green — on top
+ * of the existing text-label convention ([CRITICAL]/[HIGH]/etc). This is
+ * a deliberate re-confirmation, not an accidental revert. If touching
+ * this again, confirm with the product owner first either way.
  */
 
 export const color = {
@@ -27,13 +20,13 @@ export const color = {
   textSecondary: '#9CA3AF',
   textTertiary: '#6B7280',
 
-  // Severity — DELIBERATELY MONOCHROME. All four map to shades of the same
-  // terminal green so a same-color bar/border is the intended look, not a
-  // bug. Distinguish severity via text label in the UI, not these values.
-  critical: '#39FF88',
-  high: '#39FF88',
-  medium: '#2FCC70',
-  low: '#1E6E4E',
+  // Severity — color-coded (restored Sep 11 2026). Standard traffic-light
+  // convention: red (critical) → orange (high) → yellow (medium) → green
+  // (low). Still paired with text labels, not a replacement for them.
+  critical: '#DC2626',
+  high: '#F97316',
+  medium: '#EAB308',
+  low: '#22C55E',
 
   // AI/QVAC tier accent — terminal amber, kept distinct from the primary
   // green so "probabilistic AI" vs "deterministic pattern-match" still
