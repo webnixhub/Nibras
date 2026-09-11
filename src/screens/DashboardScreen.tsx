@@ -3,7 +3,7 @@ import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useNibrasStore, getAggregateStats, FREE_DAILY_LIMIT } from '../store/useNibrasStore';
 import { Severity } from '../rules/patternRules';
-import { color, spacing, radius, type as t } from '../theme/tokens';
+import { color, spacing, radius, type as t, font } from '../theme/tokens';
 
 const SEVERITY_COLOR: Record<Severity, string> = {
   CRITICAL: color.critical,
@@ -24,14 +24,22 @@ function RiskPulse({ totals, totalFindings }: { totals: Record<Severity, number>
   const order: Severity[] = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
   return (
     <View>
+      {/* Segments are now near-identical shades of terminal green (monochrome
+          decision, tokens.ts) — thin white-alpha dividers added so segment
+          boundaries are still visible without relying on color contrast. */}
       <View style={styles.pulseBar}>
-        {order.map((sev) => {
+        {order.map((sev, i) => {
           const pct = totals[sev] / totalFindings;
           if (pct === 0) return null;
           return (
             <View
               key={sev}
-              style={{ flex: pct, backgroundColor: SEVERITY_COLOR[sev] }}
+              style={{
+                flex: pct,
+                backgroundColor: SEVERITY_COLOR[sev],
+                borderRightWidth: i < order.length - 1 ? 1 : 0,
+                borderRightColor: 'rgba(0,0,0,0.4)',
+              }}
             />
           );
         })}
@@ -72,7 +80,7 @@ export default function DashboardScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Dashboard</Text>
+      <Text style={styles.title}>[DASHBOARD]</Text>
       <Text style={styles.subtitle}>Local scan history — never leaves this device.</Text>
 
       <View style={styles.statGrid}>
@@ -204,7 +212,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.lg,
     alignItems: 'center',
   },
-  actionButtonText: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  actionButtonText: { color: color.bg, fontSize: 15, fontFamily: font.mono, letterSpacing: 0.5, fontWeight: '700' },
   actionButtonSecondary: {
     backgroundColor: color.surface,
     borderWidth: 1,
@@ -213,7 +221,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.lg,
     alignItems: 'center',
   },
-  actionButtonSecondaryText: { color: color.textPrimary, fontSize: 15, fontWeight: '600' },
+  actionButtonSecondaryText: { color: color.textPrimary, fontSize: 15, fontFamily: font.mono },
 
   historyCard: {
     backgroundColor: color.surface,
