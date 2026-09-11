@@ -10,6 +10,9 @@
     "build:prod": "eas build --profile production --platform android"
   },
   "dependencies": {
+    "@expo-google-fonts/orbitron": "^0.4.2",
+    "@expo-google-fonts/share-tech-mono": "^0.4.1",
+    "@expo-google-fonts/vt323": "^0.4.1",
     "@qvac/rag": "^0.6.4",
     "@qvac/sdk": "^0.16.0",
     "@react-native-async-storage/async-storage": "^2.1.0",
@@ -23,6 +26,7 @@
     "expo-device": "^56.0.4",
     "expo-document-picker": "~56.0.4",
     "expo-file-system": "^56.0.8",
+    "expo-font": "~56.0.7",
     "expo-sharing": "~56.0.4",
     "expo-status-bar": "~56.0.4",
     "expo-updates": "~56.0.24",
