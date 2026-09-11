@@ -32,6 +32,7 @@ const expoConfig = {
   },
   plugins: [
     'expo-document-picker',
+    'expo-font',
     [
       'expo-build-properties',
       {
