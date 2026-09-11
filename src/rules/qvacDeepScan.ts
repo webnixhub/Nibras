@@ -10,7 +10,7 @@
 import { generate, isModelLoaded, loadModel, isQvacAvailable } from '../qvac/qvacClient';
 import { Finding } from './patternRules';
 
-export type SemanticCategory = 'null-pointer' | 'race-condition' | 'performance';
+export type SemanticCategory = 'null-pointer' | 'race-condition' | 'performance' | 'pattern-context';
 
 export interface SemanticFinding {
   category: SemanticCategory;
@@ -20,13 +20,14 @@ export interface SemanticFinding {
   lineHint?: string; // model's best-effort line reference, not guaranteed accurate
 }
 
-const SYSTEM_PROMPT = `You are a code review assistant analyzing a code snippet for three specific issue types:
+const SYSTEM_PROMPT = `You are a code review assistant analyzing a code snippet for four issue types:
 1. null-pointer: accessing a property/method on a value that could be null/undefined
 2. race-condition: shared state modified without synchronization, or async operations with ordering assumptions that may not hold
 3. performance: obvious bottlenecks — O(n^2)+ where better exists, unnecessary re-renders, blocking calls in hot paths
+4. pattern-context: if a list of "Already-detected findings" is provided below, add a one-sentence plain-English explanation and concrete fix for EACH one listed — do not re-detect them yourself, only explain the ones given to you
 
 Respond ONLY with a JSON array, no markdown fences, no preamble. Each element:
-{"category": "null-pointer"|"race-condition"|"performance", "confidence": "high"|"medium"|"low", "explanation": "one sentence", "suggestedFix": "one sentence", "lineHint": "the approximate location or a short code fragment near the issue — best effort, does not need to be an exact character-for-character quote"}
+{"category": "null-pointer"|"race-condition"|"performance"|"pattern-context", "confidence": "high"|"medium"|"low", "explanation": "one sentence", "suggestedFix": "one sentence", "lineHint": "the approximate location or a short code fragment near the issue — best effort, does not need to be an exact character-for-character quote"}
 
 If you find nothing in a category, omit it. If you find nothing at all, respond with an empty array: []
 Do not invent issues that aren't present. Only report what you can actually see in the code.`;
@@ -35,6 +36,7 @@ export interface DeepScanResult {
   findings: SemanticFinding[];
   tokensPerSecond: number;
   modelLoadedThisRun: boolean;
+  parseFailed: boolean;
 }
 
 export async function runSemanticScan(
@@ -122,11 +124,20 @@ export async function runSemanticScan(
     }
   }
 
-  const userPrompt = `${windowNote}Analyze this code:\n\n${codeForPrompt}`;
+  const contextBlock =
+    patternFindings.length > 0
+      ? `\n\nAlready-detected findings (explain each under "pattern-context" — do not re-find them):\n${patternFindings
+          .slice(0, 10)
+          .map((p) => `- [${p.severity}] line ${p.line}: ${p.message}\n  code: ${p.snippet}`)
+          .join('\n')}`
+      : '';
 
-  const result = await generate(SYSTEM_PROMPT, userPrompt, { maxTokens: 600 });
+  const userPrompt = `${windowNote}Analyze this code:\n\n${codeForPrompt}${contextBlock}`;
+
+  const result = await generate(SYSTEM_PROMPT, userPrompt, { maxTokens: 800 });
 
   let findings: SemanticFinding[] = [];
+  let parseFailed = false;
   try {
     const cleaned = result.text.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(cleaned);
@@ -136,23 +147,21 @@ export async function runSemanticScan(
           f &&
           typeof f.category === 'string' &&
           typeof f.explanation === 'string' &&
-          ['null-pointer', 'race-condition', 'performance'].includes(f.category)
+          ['null-pointer', 'race-condition', 'performance', 'pattern-context'].includes(f.category)
       );
+    } else {
+      parseFailed = true;
     }
   } catch {
-    // Model didn't return valid JSON — fail to empty rather than crash
-    // the scan. The pattern-match findings still stand on their own.
-    // LOGGED, NOT SILENT: a parse failure here is indistinguishable from
-    // a genuine "no issues found" empty array in the UI otherwise — see
-    // Sep 2026 regression where a stricter verbatim-lineHint prompt caused
-    // exactly this failure mode and went undetected until manual retest.
     console.warn('[qvacDeepScan] Model output failed JSON parse, raw text:', result.text);
     findings = [];
+    parseFailed = true;
   }
 
   return {
     findings,
     tokensPerSecond: result.tokensPerSecond,
     modelLoadedThisRun,
+    parseFailed,
   };
 }

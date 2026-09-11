@@ -41,6 +41,7 @@ export default function VaultModeScreen() {
   const [tps, setTps] = useState<number | null>(null);
   const [semanticError, setSemanticError] = useState<string | null>(null);
   const [aiStatus, setAiStatus] = useState<'idle' | 'running' | 'done' | 'error'>('idle');
+  const [aiParseFailed, setAiParseFailed] = useState(false);
 
   // SELECTOR SUBSCRIPTIONS ONLY — see DashboardScreen.tsx for why. An
   // unselected useNibrasStore() here plus an unwrapped resetDailyIfNeeded()
@@ -85,6 +86,7 @@ export default function VaultModeScreen() {
     setLoading(true);
     setSemanticError(null);
     setSemanticFindings([]);
+    setAiParseFailed(false);
     setAiStatus('running');
 
     try {
@@ -99,6 +101,7 @@ export default function VaultModeScreen() {
         const result = await runSemanticScan(code, setModelLoadPct, allPatternFindings);
         setModelLoadPct(null);
         setSemanticFindings(result.findings);
+        setAiParseFailed(result.parseFailed);
         setTps(Number(result.tokensPerSecond.toFixed(1)));
         setAiStatus('done');
       } catch (e: any) {
@@ -176,8 +179,15 @@ export default function VaultModeScreen() {
 
       {aiStatus === 'done' && (
   <>
-    {semanticFindings.length === 0 && (
+    {semanticFindings.length === 0 && !aiParseFailed && (
       <Text style={styles.empty}>No issues found by AI analysis</Text>
+    )}
+    {semanticFindings.length === 0 && aiParseFailed && (
+      <View style={styles.errorBox}>
+        <Text style={styles.errorText}>
+          AI analysis inconclusive on this file — model did not return a readable result. This is NOT the same as a clean scan. Pattern-match results above still stand.
+        </Text>
+      </View>
     )}
     {semanticFindings.length > 0 && (
         <>
