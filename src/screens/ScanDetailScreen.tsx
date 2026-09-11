@@ -19,7 +19,7 @@ export default function ScanDetailScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>{record.mode === 'guard' ? 'Guard Mode' : 'Vault Mode'} Scan</Text>
+      <Text style={styles.title}>[{record.mode === 'guard' ? 'GUARD MODE' : 'VAULT MODE'}] SCAN</Text>
       <Text style={styles.subtitle}>
         {new Date(record.timestamp).toLocaleDateString()} ·{' '}
         {new Date(record.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -45,5 +45,5 @@ const styles = StyleSheet.create({
   title: { ...t.displayLarge, color: color.textPrimary },
   subtitle: { ...t.body, color: color.textSecondary, marginTop: spacing.xs },
   meta: { ...t.body, color: color.textTertiary, marginBottom: spacing.lg },
-  empty: { color: color.textTertiary, textAlign: 'center', marginTop: 40 },
+  empty: { ...t.body, color: color.textTertiary, textAlign: 'center', marginTop: 40 },
 });
