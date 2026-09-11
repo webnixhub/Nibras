@@ -11,7 +11,7 @@ import DashboardScreen from '../screens/DashboardScreen';
 import GuardModeScreen from '../screens/GuardModeScreen';
 import VaultModeScreen from '../screens/VaultModeScreen';
 import ScanDetailScreen from '../screens/ScanDetailScreen';
-import { color, spacing, type as t, radius } from '../theme/tokens';
+import { color, spacing, type as t, radius, font } from '../theme/tokens';
 
 const Drawer = createDrawerNavigator();
 
@@ -27,8 +27,8 @@ function CustomDrawerContent({ navigation, state }: DrawerContentComponentProps)
   return (
     <View style={styles.drawerContainer}>
       <View style={styles.drawerHeader}>
-        <Text style={styles.drawerTitle}>Nibras</Text>
-        <Text style={styles.drawerSubtitle}>On-device security scanner</Text>
+        <Text style={styles.drawerTitle}>NIBRAS</Text>
+        <Text style={styles.drawerSubtitle}>// ON-DEVICE SCANNER</Text>
       </View>
 
       <View style={styles.navList}>
@@ -42,8 +42,8 @@ function CustomDrawerContent({ navigation, state }: DrawerContentComponentProps)
             >
               <Ionicons
                 name={item.icon}
-                size={20}
-                color={isActive ? color.textPrimary : color.textSecondary}
+                size={18}
+                color={isActive ? color.aiAccent : color.textSecondary}
               />
               <Text style={[styles.navLabel, isActive && styles.navLabelActive]}>{item.name}</Text>
             </Pressable>
@@ -63,9 +63,14 @@ export default function AppNavigator() {
     <Drawer.Navigator
       drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
-        headerStyle: { backgroundColor: color.bg },
-        headerTintColor: color.textPrimary,
+        headerStyle: { backgroundColor: color.bg, borderBottomWidth: 1, borderBottomColor: color.border },
+        headerTintColor: color.aiAccent,
         headerShadowVisible: false,
+        headerTitleStyle: { fontFamily: font.display, fontSize: 15, letterSpacing: 1 },
+        // Per-screen titles removed — every drawer screen now shows the
+        // same persistent brand header instead of "Dashboard" / "Guard
+        // Mode" / etc. Screen identity now lives only in the drawer itself.
+        headerTitle: 'NIBRAS // ON-DEVICE SCANNER',
         drawerStyle: { backgroundColor: color.surface, width: 260 },
       }}
     >
@@ -95,7 +100,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     borderRadius: radius.md,
   },
-  navItemActive: { backgroundColor: color.surfaceElevated },
+  navItemActive: {
+    backgroundColor: color.surfaceElevated,
+    borderLeftWidth: 2,
+    borderLeftColor: color.aiAccent,
+  },
   navLabel: { ...t.body, color: color.textSecondary, fontWeight: '600' },
   navLabelActive: { color: color.textPrimary },
   drawerFooter: {
