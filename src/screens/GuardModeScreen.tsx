@@ -6,7 +6,7 @@ import { scanProject, severityCounts, Finding, Severity } from '../rules/pattern
 import FindingCard from '../components/FindingCard';
 import { useNibrasStore, canScan, FREE_DAILY_LIMIT } from '../store/useNibrasStore';
 import { loadModel, generate, isModelLoaded, isQvacAvailable } from '../qvac/qvacClient';
-import { color, spacing, radius, type as t } from '../theme/tokens';
+import { color, spacing, radius, type as t, font } from '../theme/tokens';
 
 const SEVERITY_COLOR: Record<Severity, string> = {
   CRITICAL: color.critical,
@@ -154,7 +154,7 @@ export default function GuardModeScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Guard Mode</Text>
+      <Text style={styles.title}>[GUARD MODE]</Text>
       <Text style={styles.subtitle}>
         {isPro ? 'Unlimited scans' : `${scansToday}/${FREE_DAILY_LIMIT} scans today`}
       </Text>
@@ -184,7 +184,7 @@ export default function GuardModeScreen() {
           {(Object.keys(counts) as Severity[]).map((sev) => (
             <View key={sev} style={[styles.badge, { backgroundColor: SEVERITY_COLOR[sev] }]}>
               <Text style={styles.badgeText}>
-                {sev} {counts[sev]}
+                [{sev}] {counts[sev]}
               </Text>
             </View>
           ))}
@@ -226,9 +226,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.xl,
   },
-  scanButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  scanButtonText: { color: color.bg, fontSize: 16, fontFamily: font.mono, letterSpacing: 0.5, fontWeight: '600' },
   modelLoadBox: { backgroundColor: color.surface, borderRadius: radius.sm, padding: spacing.md, marginBottom: spacing.lg },
-  modelLoadText: { color: color.textSecondary, fontSize: 13, textAlign: 'center' },
+  modelLoadText: { color: color.textSecondary, fontSize: 13, fontFamily: font.mono, textAlign: 'center' },
   tpsBox: {
     alignSelf: 'center',
     backgroundColor: color.pulseAccentBg,
@@ -239,10 +239,10 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
     marginBottom: spacing.lg,
   },
-  tpsText: { color: color.pulseAccent, fontSize: 12, fontWeight: '700' },
+  tpsText: { color: color.pulseAccent, fontSize: 12, fontFamily: font.mono, letterSpacing: 0.5 },
   summaryRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.lg },
   badge: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: radius.sm },
-  badgeText: { color: '#fff', fontSize: 12, fontWeight: '700' },
+  badgeText: { color: color.bg, fontSize: 12, fontFamily: font.mono, letterSpacing: 0.5, fontWeight: '700' },
   deepScanCard: {
     backgroundColor: color.aiAccentBg,
     borderWidth: 1,
@@ -251,13 +251,8 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     marginBottom: spacing.lg,
   },
-  deepScanLabel: { color: color.aiAccent, fontSize: 10, fontWeight: '800', marginBottom: spacing.xs, letterSpacing: 1 },
-  deepScanText: { color: color.textPrimary, fontSize: 13, lineHeight: 19 },
-  card: { backgroundColor: color.surface, borderLeftWidth: 4, borderRadius: radius.sm, padding: spacing.md, marginBottom: spacing.sm },
-  cardSeverity: { fontSize: 11, fontWeight: '800', marginBottom: spacing.xs },
-  cardMessage: { color: color.textPrimary, fontSize: 14, marginBottom: spacing.xs },
-  cardMeta: { color: color.textTertiary, fontSize: 12, marginBottom: spacing.xs },
-  cardSnippet: { color: color.textSecondary, fontSize: 12, fontFamily: 'monospace' },
-  empty: { color: color.textTertiary, textAlign: 'center', marginTop: 40 },
-  clean: { color: color.aiAccent, textAlign: 'center', marginTop: 40, fontWeight: '600' },
+  deepScanLabel: { color: color.aiAccent, fontSize: 10, fontFamily: font.mono, letterSpacing: 1 },
+  deepScanText: { color: color.textPrimary, fontSize: 13, fontFamily: font.mono, lineHeight: 19 },
+  empty: { color: color.textTertiary, fontFamily: font.mono, textAlign: 'center', marginTop: 40 },
+  clean: { color: color.aiAccent, fontFamily: font.mono, textAlign: 'center', marginTop: 40, letterSpacing: 0.5 },
 });
