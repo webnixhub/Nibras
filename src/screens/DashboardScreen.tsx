@@ -80,7 +80,7 @@ export default function DashboardScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>[ON-DEVICE SECURITY SCANNER]</Text>
+      <Text style={styles.title}>[LOCAL SECURITY SCANNER]</Text>
       <Text style={styles.subtitle}>Local scan history — never leaves this device.</Text>
 
       <View style={styles.statGrid}>

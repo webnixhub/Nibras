@@ -28,7 +28,6 @@ function CustomDrawerContent({ navigation, state }: DrawerContentComponentProps)
     <View style={styles.drawerContainer}>
       <View style={styles.drawerHeader}>
         <Text style={styles.drawerTitle}>NIBRAS</Text>
-        <Text style={styles.drawerSubtitle}>// ON-DEVICE SCANNER</Text>
       </View>
 
       <View style={styles.navList}>
